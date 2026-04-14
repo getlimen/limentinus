@@ -1,0 +1,45 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+*.slnx.user
+
+## EF Core local dev databases
+*.db
+*.db-*
+
+## Node / Angular
+node_modules/
+dist/
+.angular/
+coverage/
+*.tsbuildinfo
+
+## Environment
+.env
+.env.local
+*.env
+!template.env
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
+logs/
+
+## IDE
+.vscode/
+*.swp
+*~
+
+## Certificates (never commit)
+*.pfx
+*.key
+*.crt
+*.pem
+!test/**/*.pem
