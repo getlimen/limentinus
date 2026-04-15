@@ -4,4 +4,8 @@
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Limen.Contracts\Limen.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>Limen.Contracts</PackageId>
+    <Version>0.1.0-alpha</Version>
+    <Authors>PianoNic</Authors>
+    <Description>Shared DTOs + contracts for Limen components (limen, ostiarius, forculus, limentinus).</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/getlimen/limen</RepositoryUrl>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+</Project>

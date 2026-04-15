@@ -57,6 +57,18 @@ Freely combinable.
 
 In active development. See [`limen/docs/superpowers/plans/2026-04-14-plan-02-agent-control-channel.md`](https://github.com/getlimen/limen/blob/main/docs/superpowers/plans/2026-04-14-plan-02-agent-control-channel.md).
 
+## Development
+
+Limentinus uses `wg` / `wg-quick` (Linux only) to manage its local WireGuard tunnel. On Windows/macOS dev hosts without these tools, Limentinus logs a warning and continues without the tunnel — useful for testing the WS control channel locally.
+
+### Sync contracts from limen
+
+Limen.Contracts source is checked in locally under `src/Limen.Contracts/`. When it changes upstream, run:
+
+```bash
+bash scripts/sync-contracts.sh
+```
+
 ## License
 
 [Apache 2.0](LICENSE)
