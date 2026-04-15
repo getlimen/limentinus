@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -19,6 +20,7 @@ public sealed class LimenWebSocketChannel : ILimenControlClient, IDeployReporter
     private ClientWebSocket? _currentWs;
     private readonly SemaphoreSlim _sendLock = new(1, 1);
     private readonly object _wsLock = new();
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _deployLocks = new();
 
     public LimenWebSocketChannel(
         Uri serverUri,
@@ -213,6 +215,8 @@ public sealed class LimenWebSocketChannel : ILimenControlClient, IDeployReporter
 
     private async Task HandleDeployAsync(DeployCommand cmd, CancellationToken ct)
     {
+        var deployLock = _deployLocks.GetOrAdd(cmd.ContainerName, _ => new SemaphoreSlim(1, 1));
+        await deployLock.WaitAsync(ct);
         try
         {
             var pipeline = _pipelineFactory();
@@ -233,6 +237,10 @@ public sealed class LimenWebSocketChannel : ILimenControlClient, IDeployReporter
         catch (Exception ex)
         {
             _log.LogError(ex, "Unhandled error during deploy {DeploymentId}", cmd.DeploymentId);
+        }
+        finally
+        {
+            deployLock.Release();
         }
     }
 
