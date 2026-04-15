@@ -33,11 +33,19 @@ public sealed class RollbackStage : IRollbackStage
         {
             try
             {
+                // If FinalizeStage already renamed the old container to a temp name
+                // (step 2 succeeded but step 3 failed), restore the original name first
+                // so that the container is discoverable under its expected name.
+                if (ctx.RenamedOldContainerName is not null)
+                {
+                    await _driver.RenameContainerAsync(ctx.OldContainerId, ctx.Request.ContainerName, ct);
+                }
+
                 await _driver.StartContainerByIdAsync(ctx.OldContainerId, ct);
             }
             catch (Exception ex)
             {
-                _log.LogWarning(ex, "Failed to restart old container {ContainerId} during rollback", ctx.OldContainerId);
+                _log.LogWarning(ex, "Failed to restore/restart old container {ContainerId} during rollback", ctx.OldContainerId);
             }
         }
     }
