@@ -81,15 +81,24 @@ public sealed class LimenWebSocketChannel : ILimenControlClient, IDeployReporter
 
                 lock (_wsLock) { _currentWs = ws; }
 
+                // Per-connection CTS linked to the outer token.
+                // Cancelled when the receive loop exits so the heartbeat delay
+                // wakes immediately rather than blocking for up to 30 s.
+                using var connectionCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                var linkedCt = connectionCts.Token;
+
                 try
                 {
                     await SendFrameAsync(ws, AgentMessageTypes.Heartbeat,
-                        new Heartbeat(DateTimeOffset.UtcNow, Array.Empty<string>()), ct);
+                        new Heartbeat(DateTimeOffset.UtcNow, Array.Empty<string>()), linkedCt);
 
-                    var heartbeatTask = HeartbeatLoopAsync(ws, ct);
-                    var receiveTask = ReceiveLoopAsync(ws, ct);
+                    var heartbeatTask = HeartbeatLoopAsync(ws, linkedCt);
+                    var receiveTask = ReceiveLoopAsync(ws, linkedCt);
 
                     await Task.WhenAny(heartbeatTask, receiveTask);
+
+                    // Signal the other loop to stop without waiting for the next 30-s tick.
+                    await connectionCts.CancelAsync();
                 }
                 finally
                 {
@@ -133,11 +142,22 @@ public sealed class LimenWebSocketChannel : ILimenControlClient, IDeployReporter
     {
         while (ws.State == WebSocketState.Open && !ct.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromSeconds(30), ct);
-            if (ws.State != WebSocketState.Open)
+            try
+            {
+                // Pass ct so the delay is cancelled immediately when the connection
+                // closes (connectionCts is cancelled from the WhenAny callback).
+                await Task.Delay(TimeSpan.FromSeconds(30), ct);
+            }
+            catch (OperationCanceledException)
             {
                 break;
             }
+
+            if (ws.State != WebSocketState.Open || ct.IsCancellationRequested)
+            {
+                break;
+            }
+
             await SendFrameAsync(ws, AgentMessageTypes.Heartbeat,
                 new Heartbeat(DateTimeOffset.UtcNow, Array.Empty<string>()), ct);
         }
