@@ -21,17 +21,27 @@ public sealed class DockerDotNetDriver : IDockerDriver, IDisposable
 
     public async Task<string> PullImageAsync(string image, IProgress<string>? progress, CancellationToken ct)
     {
-        var colonIdx = image.LastIndexOf(':');
         string repo, tag;
-        if (colonIdx > 0)
+        var atIdx = image.IndexOf('@');
+        if (atIdx > 0)
         {
-            repo = image[..colonIdx];
-            tag = image[(colonIdx + 1)..];
+            // Digest-pinned form: repo@sha256:abc…  — split on '@'.
+            repo = image[..atIdx];
+            tag = image[(atIdx + 1)..];
         }
         else
         {
-            repo = image;
-            tag = "latest";
+            var colonIdx = image.LastIndexOf(':');
+            if (colonIdx > 0)
+            {
+                repo = image[..colonIdx];
+                tag = image[(colonIdx + 1)..];
+            }
+            else
+            {
+                repo = image;
+                tag = "latest";
+            }
         }
 
         IProgress<JSONMessage>? dockerProgress = progress is null
