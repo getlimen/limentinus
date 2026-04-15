@@ -16,7 +16,7 @@ public sealed class LimenWebSocketChannel : ILimenControlClient
 
     public LimenWebSocketChannel(Uri serverUri, ILogger<LimenWebSocketChannel> log) { _serverUri = serverUri; _log = log; }
 
-    public async Task<NodeIdentity> EnrollAsync(string key, string hostname, string[] roles, string platform, string version, CancellationToken ct)
+    public async Task<EnrollmentOutcome> EnrollAsync(string key, string hostname, string[] roles, string platform, string version, CancellationToken ct)
     {
         using var ws = new ClientWebSocket();
         var uri = new Uri(_serverUri, "/api/agents/ws");
@@ -44,7 +44,9 @@ public sealed class LimenWebSocketChannel : ILimenControlClient
             catch { /* ignore close races */ }
         }
 
-        return new NodeIdentity { AgentId = resp.AgentId, Secret = resp.PermanentSecret };
+        return new EnrollmentOutcome(
+            new NodeIdentity { AgentId = resp.AgentId, Secret = resp.PermanentSecret },
+            resp.Wireguard);
     }
 
     public async Task RunAsync(NodeIdentity id, CancellationToken ct)

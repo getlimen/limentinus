@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Limentinus.Domain\Limentinus.Domain.csproj" />
-    <ProjectReference Include="..\..\..\limen\contracts\Limen.Contracts\Limen.Contracts.csproj" />
+    <ProjectReference Include="..\Limen.Contracts\Limen.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

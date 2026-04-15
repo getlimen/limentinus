@@ -10,7 +10,7 @@ public sealed class EnrollmentService
 
     public EnrollmentService(IIdentityStore store, ILimenControlClient client) { _store = store; _client = client; }
 
-    public async Task<NodeIdentity> EnsureEnrolledAsync(
+    public async Task<EnrollmentOutcome> EnsureEnrolledAsync(
         string provisioningKey,
         string hostname,
         string[] roles,
@@ -21,7 +21,7 @@ public sealed class EnrollmentService
         var existing = await _store.LoadAsync(ct);
         if (existing is not null)
         {
-            return existing;
+            return new EnrollmentOutcome(existing, null);
         }
 
         if (string.IsNullOrWhiteSpace(provisioningKey))
@@ -29,8 +29,8 @@ public sealed class EnrollmentService
             throw new InvalidOperationException("No local identity and no provisioning key provided. Set LIMEN_PROVISIONING_KEY on first run.");
         }
 
-        var id = await _client.EnrollAsync(provisioningKey, hostname, roles, platform, version, ct);
-        await _store.SaveAsync(id, ct);
-        return id;
+        var outcome = await _client.EnrollAsync(provisioningKey, hostname, roles, platform, version, ct);
+        await _store.SaveAsync(outcome.Identity, ct);
+        return outcome;
     }
 }

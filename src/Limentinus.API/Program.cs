@@ -3,6 +3,7 @@ using Limentinus.Application.Common.Interfaces;
 using Limentinus.Application.Services;
 using Limentinus.Infrastructure.Control;
 using Limentinus.Infrastructure.Persistence;
+using Limentinus.Infrastructure.Tunnel;
 
 var host = Host.CreateApplicationBuilder(args);
 
@@ -15,6 +16,8 @@ host.Services.AddSingleton<ILimenControlClient>(sp =>
     new LimenWebSocketChannel(new Uri(limenUrl),
         sp.GetRequiredService<ILogger<LimenWebSocketChannel>>()));
 host.Services.AddSingleton<EnrollmentService>();
+host.Services.AddSingleton<IWireGuardClient>(sp =>
+    new WgQuickClient(sp.GetRequiredService<ILogger<WgQuickClient>>()));
 host.Services.AddHostedService<AgentWorker>();
 
 await host.Build().RunAsync();
