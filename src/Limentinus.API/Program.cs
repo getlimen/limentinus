@@ -1,7 +1,20 @@
 using Limentinus.API;
+using Limentinus.Application.Common.Interfaces;
+using Limentinus.Application.Services;
+using Limentinus.Infrastructure.Control;
+using Limentinus.Infrastructure.Persistence;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+var host = Host.CreateApplicationBuilder(args);
 
-var host = builder.Build();
-host.Run();
+var limenUrl = Environment.GetEnvironmentVariable("LIMEN_CENTRAL_URL")
+    ?? throw new InvalidOperationException("LIMEN_CENTRAL_URL required");
+var identityPath = Environment.GetEnvironmentVariable("LIMEN_IDENTITY_PATH") ?? "./identity.json";
+
+host.Services.AddSingleton<IIdentityStore>(_ => new FileIdentityStore(identityPath));
+host.Services.AddSingleton<ILimenControlClient>(sp =>
+    new LimenWebSocketChannel(new Uri(limenUrl),
+        sp.GetRequiredService<ILogger<LimenWebSocketChannel>>()));
+host.Services.AddSingleton<EnrollmentService>();
+host.Services.AddHostedService<AgentWorker>();
+
+await host.Build().RunAsync();
