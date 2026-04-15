@@ -3,7 +3,13 @@
 > **Project**: Limentinus — component of [Limen](https://github.com/getlimen/limen)
 > **Role**: Universal agent. Installed on every node Limen manages. Roles (`control`, `docker`, `proxy`) determine which capabilities it enables. Maintains a WireGuard tunnel to Forculus and a persistent WebSocket to Limen.
 
-**For full project context, read [`limen/docs/HANDOFF.md`](https://github.com/getlimen/limen/blob/main/docs/HANDOFF.md).**
+**For full project context, read [`limen/docs/HANDOFF.md`](https://github.com/getlimen/limen/blob/main/docs/HANDOFF.md) and [`limen/docs/CONVENTIONS.md`](https://github.com/getlimen/limen/blob/main/docs/CONVENTIONS.md).**
+
+## Workflow rules (enforced, apply to every repo in `getlimen`)
+
+- **Never work on `main`.** Create issue (labeled) → branch `<type>/<issue>_<PascalCaseName>` → PR (labeled) with `Closes #<issue>` → squash-merge + delete branch.
+- **Use CLI generators whenever one exists.** `dotnet new`, `dotnet ef`, `gh issue create`, `gh pr create`, etc. If you don't know the command, search online before hand-writing boilerplate.
+- **No AI / Claude attribution** in commits or PRs.
 
 ## Etymology
 *Limentinus* — minor Roman deity, the **guardian-spirit of the threshold** (*limen*). Named directly after *limen* itself. Limentinus watches over each doorway — just as our agent watches over each managed host.
