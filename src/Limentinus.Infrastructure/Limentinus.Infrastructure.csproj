@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Limen.Contracts\Limen.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Docker.DotNet" Version="3.125.15" />
+  </ItemGroup>
+
 </Project>
