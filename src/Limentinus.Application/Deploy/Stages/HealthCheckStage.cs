@@ -52,13 +52,9 @@ public sealed class HealthCheckStage : IDeployStage
 
     private async Task<DeployStageResult> RunHttpHealthCheck(DeployContext ctx, Limen.Contracts.AgentMessages.HealthCheckSpec hc, CancellationToken ct)
     {
-        var hostPort = await _driver.GetContainerHostPortAsync(ctx.NewContainerId!, ctx.Request.InternalPort, ct);
-        if (hostPort is null)
-        {
-            return DeployStageResult.Fail("Could not determine host port for HTTP health check");
-        }
-
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(hc.TimeoutSeconds) };
+
+        int? resolvedPort = null;
 
         for (var attempt = 0; attempt < hc.MaxRetries; attempt++)
         {
@@ -67,9 +63,22 @@ public sealed class HealthCheckStage : IDeployStage
                 await Task.Delay(TimeSpan.FromSeconds(hc.IntervalSeconds), ct);
             }
 
+            // Resolve port inside the loop so transient "port not ready" failures are
+            // retried along with HTTP probe failures. Cache the result once obtained.
+            if (resolvedPort is null)
+            {
+                resolvedPort = await _driver.GetContainerHostPortAsync(ctx.NewContainerId!, ctx.Request.InternalPort, ct);
+            }
+
+            if (resolvedPort is null)
+            {
+                // Port not yet mapped — retry on next attempt.
+                continue;
+            }
+
             try
             {
-                var resp = await http.GetAsync($"http://127.0.0.1:{hostPort}/", ct);
+                var resp = await http.GetAsync($"http://127.0.0.1:{resolvedPort}/", ct);
                 if (resp.IsSuccessStatusCode)
                 {
                     return DeployStageResult.Ok();
@@ -79,6 +88,11 @@ public sealed class HealthCheckStage : IDeployStage
             {
                 // retry
             }
+        }
+
+        if (resolvedPort is null)
+        {
+            return DeployStageResult.Fail("Could not determine host port for HTTP health check");
         }
 
         return DeployStageResult.Fail($"HTTP health check failed after {hc.MaxRetries} attempts");
