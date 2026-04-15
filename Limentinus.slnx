@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Limentinus.API/Limentinus.API.csproj" />
+    <Project Path="src/Limentinus.Application/Limentinus.Application.csproj" />
+    <Project Path="src/Limentinus.Domain/Limentinus.Domain.csproj" />
+    <Project Path="src/Limentinus.Infrastructure/Limentinus.Infrastructure.csproj" />
+    <Project Path="src/Limentinus.Tests/Limentinus.Tests.csproj" />
+  </Folder>
+</Solution>

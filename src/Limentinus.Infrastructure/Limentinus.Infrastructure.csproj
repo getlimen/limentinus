@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Limentinus.Domain\Limentinus.Domain.csproj" />
+    <ProjectReference Include="..\Limentinus.Application\Limentinus.Application.csproj" />
+    <ProjectReference Include="..\..\..\limen\contracts\Limen.Contracts\Limen.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
