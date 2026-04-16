@@ -9,6 +9,7 @@
     <ProjectReference Include="..\Limentinus.Domain\Limentinus.Domain.csproj" />
     <ProjectReference Include="..\Limentinus.Application\Limentinus.Application.csproj" />
     <ProjectReference Include="..\Limentinus.Infrastructure\Limentinus.Infrastructure.csproj" />
+    <ProjectReference Include="..\Limentinus.API\Limentinus.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>
